@@ -1,0 +1,118 @@
+import tkinter as tk
+import tkmacosx as tkm
+class GUI:
+    def __init__(self) -> None:
+        self.root = tk.Tk()
+        self.root.title("Calculator")
+
+        self.result = tk.Label(self.root, text= "0", font=("Arial", 24), width=30, height=1, anchor="e")
+        self.new_action = False
+
+        self.result.pack()
+        self.buttonframe = tk.Frame(self.root, width=800, height=500)
+        self.buttonframe.columnconfigure(0, weight=1)
+        self.buttonframe.columnconfigure(1, weight=1)
+        self.buttonframe.columnconfigure(2, weight=1)
+
+        self.buttons()
+        self.buttonframe.pack()
+
+        self.root.mainloop()
+
+    def buttons(self):
+
+        self.button1 = tkm.Button(self.buttonframe, text= "1", font=("Arial", 18), command = lambda: self.prnt(self.button1["text"]))
+        self.button1.grid(row = 0, column=0, sticky="we")
+
+        self.button2 = tkm.Button(self.buttonframe, text= "2", font=("Arial", 18), command = lambda: self.prnt(self.button2["text"]))
+        self.button2.grid(row = 0, column=1, sticky="we")
+
+        self.button3 = tkm.Button(self.buttonframe, text= "3", font=("Arial", 18), command = lambda: self.prnt(self.button3["text"]))
+        self.button3.grid(row = 0, column=2, sticky="we")
+
+        self.buttonadd = tkm.Button(self.buttonframe, text= "+", font=("Arial", 18), bg= "orange", command= lambda: self.add())
+        self.buttonadd.grid(row = 0, column=3, sticky="we")
+
+        self.button4 = tkm.Button(self.buttonframe, text= "4", font=("Arial", 18), command = lambda: self.prnt(self.button4["text"]))
+        self.button4.grid(row = 1, column=0, sticky="we")
+
+        self.button5 = tkm.Button(self.buttonframe, text= "5", font=("Arial", 18), command = lambda: self.prnt(self.button5["text"]))
+        self.button5.grid(row = 1, column=1, sticky="we")
+
+        self.button6 = tkm.Button(self.buttonframe, text= "6", font=("Arial", 18), command = lambda: self.prnt(self.button6["text"]))
+        self.button6.grid(row = 1, column=2, sticky="we")
+
+        self.buttonmin = tkm.Button(self.buttonframe, text= "-", font=("Arial", 18), bg= "orange", command = lambda: self.sub())
+        self.buttonmin.grid(row = 1, column=3, sticky="we")
+
+        self.button7 = tkm.Button(self.buttonframe, text= "7", font=("Arial", 18), command = lambda: self.prnt(self.button7["text"]))
+        self.button7.grid(row = 2, column=0, sticky="we")
+
+        self.button8 = tkm.Button(self.buttonframe, text= "8", font=("Arial", 18), command = lambda: self.prnt(self.button8["text"]))
+        self.button8.grid(row = 2, column=1, sticky="we")
+
+        self.button9 = tkm.Button(self.buttonframe, text= "9", font=("Arial", 18), command = lambda: self.prnt(self.button9["text"]))
+        self.button9.grid(row = 2, column=2, sticky="we")
+
+        self.buttonmult = tkm.Button(self.buttonframe, text= "*", font=("Arial", 18), bg="orange", command = lambda: self.mult())
+        self.buttonmult.grid(row = 2, column=3, sticky="we")
+
+        self.button0 = tkm.Button(self.buttonframe, text= "0", font=("Arial", 18), command = lambda: self.prnt(self.button0["text"]))
+        self.button0.grid(row = 3, column=1, sticky="we")
+
+        self.buttondel = tkm.Button(self.buttonframe, text= "C", font=("Arial", 18), command= lambda: self.remove(), bg= "#818589")
+        self.buttondel.grid(row = 3, column=0, sticky="we")
+
+        self.buttonequ = tkm.Button(self.buttonframe, text = "=", command= self.result, bg= "#818589")
+        self.buttonequ.grid(row = 3, column=2, sticky="we")
+
+        self.buttondiv = tkm.Button(self.buttonframe, text= "/", font=("Arial", 18), bg="orange", command = lambda: self.div())
+        self.buttondiv.grid(row = 3, column=3, sticky="we")
+    def prnt(self, button_text):
+        current_text = self.result["text"]
+        if  current_text == "0":
+            if button_text == "0":
+                pass
+            else:
+                self.result.config(text=button_text)
+        elif self.new_action:
+            self.result.config(text=button_text)
+            self.new_action = False
+        else:
+            new_text = current_text + button_text
+            self.result.config(text= new_text)
+    def remove(self):
+        self.result.config(text=0)
+        self.new_action = True
+
+    def clear(self):
+        self.buttonadd.config(bg="orange", fg="black")
+        self.buttonmin.config(bg="orange", fg="black")
+        self.buttonmult.config(bg="orange", fg="black")
+        self.buttondiv.config(bg="orange", fg="black")
+    def add(self):
+        self.clear()
+        self.buttonadd.configure(bg="#BE6400")
+        self.new_action = True
+    def sub(self):
+        self.clear()
+        self.buttonmin.configure(bg="#BE6400")
+        self.new_action = True
+    
+    def mult(self):
+        self.clear()
+        self.buttonmult.configure(bg="#BE6400")
+        self.new_action = True
+
+    def div(self):
+        self.clear()
+        self.buttondiv.configure(bg="#BE6400")
+        self.new_action = True
+
+
+
+
+
+            
+
+GUI()
