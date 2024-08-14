@@ -7,7 +7,7 @@ class GUI:
 
         self.result = tk.Label(self.root, text= "0", font=("Arial", 24), width=30, height=1, anchor="e")
         self.new_action = False
-
+        self.signs = ["+", "-", "*", "/"]
         self.result.pack()
         self.buttonframe = tk.Frame(self.root, width=800, height=500)
         self.buttonframe.columnconfigure(0, weight=1)
@@ -90,7 +90,7 @@ class GUI:
             self.expression += button_text
             self.buttondel.config(text="C", bg="#818589")
     def remove(self):
-        if self.result != 0:
+        if self.result != "0":
             self.result.config(text=0)
             self.new_action = True
             self.expression = self.expression[:-1]
@@ -108,33 +108,54 @@ class GUI:
         self.buttonmult.config(bg="orange")
         self.buttondiv.config(bg="orange")
     def add(self):
+        if self.expression == "":
+            return
+        elif self.expression[-1] in self.signs:
+            self.expression = self.expression[:-1]
         self.clear()
         self.buttonadd.configure(bg="#BE6400")
         self.new_action = True
         self.expression += "+"
     def sub(self):
+        if self.expression == "":
+            return
+        elif self.expression[-1] in self.signs:
+            self.expression = self.expression[:-1]
         self.clear()
         self.buttonmin.configure(bg="#BE6400")
         self.new_action = True
         self.expression += "-"
-    
     def mult(self):
+        if self.expression == "":
+            return
+        elif self.expression[-1] in self.signs:
+            self.expression = self.expression[:-1]
         self.clear()
         self.buttonmult.configure(bg="#BE6400")
         self.new_action = True
         self.expression += "*"
-
     def div(self):
+        if self.expression == "":
+            return
+        elif self.expression[-1] in self.signs:
+            self.expression = self.expression[:-1]
         self.clear()
         self.buttondiv.configure(bg="#BE6400")
         self.new_action = True
         self.expression += "/"
-
     def calculation(self):
-        self.clear()
-        self.final = eval(self.expression)
-        self.result.config(text=self.final)
-        self.expression = ""
+        try:
+            if self.expression[-1] in self.signs:
+                self.expression = self.expression[:-1]
+            self.clear()
+            self.final = eval(self.expression)
+            self.result.config(text=str(self.final))
+            self.expression = str(self.final)
+            self.new_action = True
+        except Exception as e:
+            self.result.config(text="ERROR")
+            self.expression = ""
+            self.new_action = True
 
         
 
