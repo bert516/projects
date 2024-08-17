@@ -1,0 +1,24 @@
+import qrcode as qr
+import tkmacosx as tkm
+import tkinter as tk
+class GUI:
+    def __init__(self) -> None:
+        self.root = tk.Tk()
+        self.root.geometry("480x400+450+200")
+
+        self.label = tk.Label(self.root, text="insert URL to convert:", font=("Arial", 18), anchor="nw", width=70, height=1, padx=10)
+        self.label.pack()
+
+        self.inserturl = tk.Text(self.root, font=("Arial", 18), width=80, height=1, bd= 2, relief="solid", highlightcolor="black", bg="grey")
+        self.inserturl.pack()
+
+        self.generate = tkm.Button(self.root, text="generate", font=("Arial", 16), command = self.convert)
+        self.generate.pack()
+
+        self.root.mainloop()
+    def convert(self):
+        Url = self.inserturl.get("1.0", tk.END).strip()
+        
+
+
+GUI()
