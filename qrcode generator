@@ -1,24 +1,49 @@
-import qrcode as qr
+import qrcode 
 import tkmacosx as tkm
 import tkinter as tk
+from PIL import Image, ImageTk
 class GUI:
     def __init__(self) -> None:
         self.root = tk.Tk()
-        self.root.geometry("480x400+450+200")
+        self.root.geometry("480x500+450+200")
+        self.root.title("QR Code Generator")
 
-        self.label = tk.Label(self.root, text="insert URL to convert:", font=("Arial", 18), anchor="nw", width=70, height=1, padx=10)
+        self.label = tk.Label(self.root, text="insert URL to convert:", font=("Arial", 18), anchor="nw", width=70, height=1, padx=3, pady=1)
         self.label.pack()
 
         self.inserturl = tk.Text(self.root, font=("Arial", 18), width=80, height=1, bd= 2, relief="solid", highlightcolor="black", bg="grey")
         self.inserturl.pack()
 
-        self.generate = tkm.Button(self.root, text="generate", font=("Arial", 16), command = self.convert)
+        self.generate = tkm.Button(self.root, text="generate", font=("Arial", 16), command = lambda: self.display())
         self.generate.pack()
 
+        self.qrLabel = tk.Label(self.root)
+        self.qrLabel.pack()
+
         self.root.mainloop()
-    def convert(self):
-        Url = self.inserturl.get("1.0", tk.END).strip()
-        
+    def generate_code(self, text):
+        qr = qrcode.QRCode(version = None, error_correction = qrcode.constants.ERROR_CORRECT_Q, box_size = 9, border = 4)
+        qr.add_data(text)
+        qr.make(fit=True)
+        code_img = qr.make_image(fill_color="black", back_color="white")
+        return code_img
+    def display(self):
+        if self.inserturl.get("1.0", tk.END).strip():
+            Url = self.inserturl.get("1.0", tk.END).strip()
+            qr_img = self.generate_code(Url)
+            qr_imgTK = ImageTk.PhotoImage(qr_img)
+            
+            width, height = qr_img.size
+            self.root.geometry(f"{width+20}x{height+100}")
+            self.qrLabel.config(image=qr_imgTK)
+            self.qrLabel.image = qr_imgTK
+        else:
+            pass
+
+
+
+
+
 
 
 GUI()
