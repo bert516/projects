@@ -1,7 +1,29 @@
 import tkinter as tk
 import tkmacosx as tkm
 from tkinter import ttk
-import requests as req
+
+
+
+
+class searchable_Combobox(ttk.Combobox):
+    def __init__(self,master= None, **kwargs):
+        super().__init__(master, **kwargs)
+        self.bind("<KeyRelease>", self.search)
+        self.completionlist = []
+    def set_completionlist(self, list):
+        self.completionlist = sorted(list)
+        self["values"] = self.completionlist
+    def search(self, event):
+        current_text = self.get()
+        if current_text and current_text.isalpha():
+            filtered = [i for i in self.completionlist if i.lower().startswith(current_text.lower())]
+            self["values"] = filtered
+        else:
+            self["values"] = self.completionlist
+        if not filtered:
+            self["values"] = ["No matches found"]
+        self.event_generate("<Down>")
+        self.focus_set()
 
 class GUI:
     def __init__(self) -> None:
@@ -11,13 +33,17 @@ class GUI:
 
         self.currency1 = tk.Text(height=1, width=20, font=("Arial", 20))
         self.currency1.grid(row=0, column=0, padx=10, pady=10)
-        options = ["Euro", "Dollar"]
-        self.currencyoption1 = ttk.Combobox(self.root, values=options, height=2)
+
+        options = [i for i in data["data"].keys()]
+        self.currencyoption1 = searchable_Combobox(self.root, height=10)
+        self.currencyoption1.set_completionlist(options)
         self.currencyoption1.grid(row=0, column=1, padx=10, pady=10)
 
         self.currency2 = tk.Label(height=2, width=20)
         self.currency2.grid(row=1, column=0, padx=10, pady=10)
-        self.currencyoption2 = ttk.Combobox(self.root, values=options, height=2)
+        
+        self.currencyoption2 = searchable_Combobox(self.root, height=10)
+        self.currencyoption2.set_completionlist(options)
         self.currencyoption2.grid(row=1, column=1, padx=10, pady=10)
 
         self.root.mainloop()
