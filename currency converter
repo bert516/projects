@@ -2,6 +2,7 @@ import tkinter as tk
 import tkmacosx as tkm
 from tkinter import ttk
 
+from currency_abr import currency_dict
 
 
 
@@ -9,6 +10,8 @@ class searchable_Combobox(ttk.Combobox):
     def __init__(self,master= None, **kwargs):
         super().__init__(master, **kwargs)
         self.bind("<KeyRelease>", self.search)
+        self.bind("<<ComboboxSelected>>", GUI.convert)
+        self.bind("<Return>", self.enter_shortcut)
         self.completionlist = []
     def set_completionlist(self, list):
         self.completionlist = sorted(list)
@@ -16,7 +19,7 @@ class searchable_Combobox(ttk.Combobox):
     def search(self, event):
         current_text = self.get()
         if current_text and current_text.isalpha():
-            filtered = [i for i in self.completionlist if i.lower().startswith(current_text.lower())]
+            filtered = [i for i in self.completionlist if i.lower().startswith(current_text.lower()) or currency_dict[i].lower().startswith(current_text.lower())]
             self["values"] = filtered
         else:
             self["values"] = self.completionlist
@@ -24,6 +27,14 @@ class searchable_Combobox(ttk.Combobox):
             self["values"] = ["No matches found"]
         self.event_generate("<Down>")
         self.focus_set()
+    def enter_shortcut(self, event):
+        self.current(0)
+        self.event_generate("<<ComboboxSelected>>")
+
+        
+
+
+
 
 class GUI:
     def __init__(self) -> None:
@@ -31,20 +42,39 @@ class GUI:
         self.root.title("Currency Converter")
         self.root.geometry("550x300+450+200")
 
-        self.currency1 = tk.Text(height=1, width=20, font=("Arial", 20))
-        self.currency1.grid(row=0, column=0, padx=10, pady=10)
+        self.currency1Text = tk.Text(height=1, width=20, font=("Arial", 20))
+        self.currency1Text.insert(tk.END, "1.0")
+        self.currency1Text.bind("<KeyRelease>", self.convert)
+        self.currency1Text.grid(row=0, column=0, padx=10, pady=10)
 
-        options = [i for i in data["data"].keys()]
+        options = [i for i in api.data["data"].keys()]
         self.currencyoption1 = searchable_Combobox(self.root, height=10)
         self.currencyoption1.set_completionlist(options)
         self.currencyoption1.grid(row=0, column=1, padx=10, pady=10)
 
-        self.currency2 = tk.Label(height=2, width=20)
-        self.currency2.grid(row=1, column=0, padx=10, pady=10)
+        self.currency2text = tk.Text(height=1, width=20, font=("Arial", 20))
+        self.currency2text.insert(tk.END, "1.0")
+        self.currency2text.bind("<KeyRelease>", self.convert)
+        self.currency2text.grid(row=1, column=0, padx=10, pady=10)
         
         self.currencyoption2 = searchable_Combobox(self.root, height=10)
         self.currencyoption2.set_completionlist(options)
         self.currencyoption2.grid(row=1, column=1, padx=10, pady=10)
 
         self.root.mainloop()
+
+    def convert(self, event=None):
+        self.value1 = self.currency1Text.get("1.0", tk.END).strip()
+        self.value2 = self.currency2text.get("1.0", tk.END).strip()
+        self.currency1 = self.currencyoption1.get()
+        self.currency2 = self.currencyoption2.get()
+        if self.value1 and self.currency1 and self.currency2:
+            converted = int(self.value1) * self.currency1/self.currency2
+            self.currency2text.insert(tk.END, str(converted))
+        elif self.value2 and self.currency1 and self.currency2:
+            converted = int(self.value2) * self.currency1/self.currency2
+            self.currency1Text.insert(tk.END, str(converted))
+
+
+
 GUI()
