@@ -49,29 +49,35 @@ class GUI:
 
         self.currency1Text = only_digit_text(height=1, width=20, font=("Arial", 20))
         self.currency1Text.bind("<KeyRelease>", self.first_convert)
+        self.currency1Text.bind("<Down>", self.focus_second)
         self.currency1Text.grid(row=0, column=0, padx=10, pady=10)
 
         options = [i for i in api.data["data"].keys()]
         self.currencyoption1 = searchable_Combobox(self.root, height=10, parent_gui=self)
         self.currencyoption1.set_completionlist(options)
+        self.currencyoption1.set("EUR")
         self.currencyoption1.bind("<<ComboboxSelected>>", self.convert_by_option)
         self.currencyoption1.grid(row=0, column=1, padx=10, pady=10)
 
         self.currency2text = only_digit_text(height=1, width=20, font=("Arial", 20))
         self.currency2text.bind("<KeyRelease>", self.second_convert)
+        self.currency2text.bind("<Up>", self.focus_first)
         self.currency2text.grid(row=1, column=0, padx=10, pady=10)
         
         self.currencyoption2 = searchable_Combobox(self.root, height=10, parent_gui=self)
         self.currencyoption2.set_completionlist(options)
+        self.currencyoption2.set("USD")
         self.currencyoption2.bind("<<ComboboxSelected>>", self.convert_by_option)
         self.currencyoption2.grid(row=1, column=1, padx=10, pady=10)
 
-        self.currency1Text.insert(tk.END, "1.0")
-        self.currency2text.insert(tk.END, "1.0")
+        self.currency1Text.insert(tk.END, str(api.data["data"]["EUR"]["value"]))
+        self.currency2text.insert(tk.END, str(float(api.data["data"]["USD"]["value"])))
 
         self.root.mainloop()
 
     def first_convert(self, event=None):
+        if event.keysym == "Down":
+            return
         value = self.currency1Text.get("1.0", tk.END).strip()
         currency1 = self.currencyoption1.get()
         currency2 = self.currencyoption2.get()
@@ -80,6 +86,8 @@ class GUI:
         converted = float(value) * float(api.data["data"][currency2]["value"])/float(api.data["data"][currency1]["value"])
         self.currency2text.insert(tk.END, str(converted))
     def second_convert(self, event=None):
+        if event.keysym == "Up":
+            return
         value = self.currency2text.get("1.0", tk.END).strip()
         currency1 = self.currencyoption1.get()
         currency2 = self.currencyoption2.get()
@@ -96,6 +104,12 @@ class GUI:
             self.currency2text.delete("1.0", tk.END)
             converted = float(value) * float(api.data["data"][currency2]["value"])/float(api.data["data"][currency1]["value"])
             self.currency2text.insert(tk.END, str(converted))
+    def focus_first(self, event=None):
+        self.currency1Text.focus_set()
+
+    def focus_second(self, event=None):
+        self.currency2text.focus_set()
+
 
 
 
