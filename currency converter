@@ -4,13 +4,12 @@ from tkinter import ttk
 
 from currency_abr import currency_dict
 
-
-
 class searchable_Combobox(ttk.Combobox):
-    def __init__(self,master= None, **kwargs):
+    def __init__(self,master= None, parent_gui = None, **kwargs):
+        self.parent_gui = parent_gui
         super().__init__(master, **kwargs)
         self.bind("<KeyRelease>", self.search)
-        self.bind("<<ComboboxSelected>>", GUI.convert)
+        self.bind("<<ComboboxSelected>>", self.parent_gui.convert)
         self.bind("<Return>", self.enter_shortcut)
         self.completionlist = []
     def set_completionlist(self, list):
@@ -30,51 +29,65 @@ class searchable_Combobox(ttk.Combobox):
     def enter_shortcut(self, event):
         self.current(0)
         self.event_generate("<<ComboboxSelected>>")
+        self.master.focus_set()
 
+class only_digit_text(tk.Text):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
+        self.bind("<KeyPress>", self.edit)
+    def edit(self, event=None):
+        key_pressed = event.char
+        key_sym = event.keysym
+        if key_pressed.isdigit() or key_pressed == "." or key_sym in ["BackSpace", "Delete", "Return"]:
+            return
+        return "break"
         
-
-
-
-
 class GUI:
     def __init__(self) -> None:
         self.root = tk.Tk()
         self.root.title("Currency Converter")
         self.root.geometry("550x300+450+200")
 
-        self.currency1Text = tk.Text(height=1, width=20, font=("Arial", 20))
-        self.currency1Text.insert(tk.END, "1.0")
+        self.currency1Text = only_digit_text(height=1, width=20, font=("Arial", 20))
         self.currency1Text.bind("<KeyRelease>", self.convert)
         self.currency1Text.grid(row=0, column=0, padx=10, pady=10)
 
         options = [i for i in api.data["data"].keys()]
-        self.currencyoption1 = searchable_Combobox(self.root, height=10)
+        self.currencyoption1 = searchable_Combobox(self.root, height=10, parent_gui=self)
         self.currencyoption1.set_completionlist(options)
         self.currencyoption1.grid(row=0, column=1, padx=10, pady=10)
 
-        self.currency2text = tk.Text(height=1, width=20, font=("Arial", 20))
-        self.currency2text.insert(tk.END, "1.0")
+        self.currency2text = only_digit_text(height=1, width=20, font=("Arial", 20))
         self.currency2text.bind("<KeyRelease>", self.convert)
         self.currency2text.grid(row=1, column=0, padx=10, pady=10)
         
-        self.currencyoption2 = searchable_Combobox(self.root, height=10)
+        self.currencyoption2 = searchable_Combobox(self.root, height=10, parent_gui=self)
         self.currencyoption2.set_completionlist(options)
         self.currencyoption2.grid(row=1, column=1, padx=10, pady=10)
 
+        self.currency1Text.insert(tk.END, "1.0")
+        self.currency2text.insert(tk.END, "1.0")
+
         self.root.mainloop()
 
+
     def convert(self, event=None):
+        executed = False
         self.value1 = self.currency1Text.get("1.0", tk.END).strip()
         self.value2 = self.currency2text.get("1.0", tk.END).strip()
         self.currency1 = self.currencyoption1.get()
         self.currency2 = self.currencyoption2.get()
         if self.value1 and self.currency1 and self.currency2:
-            converted = int(self.value1) * self.currency1/self.currency2
+            executed = True
+            self.currency2text.delete("1.0", tk.END)
+            converted = float(self.value1) * float(api.data["data"][self.currency2]["value"])/float(api.data["data"][self.currency1]["value"])
             self.currency2text.insert(tk.END, str(converted))
-        elif self.value2 and self.currency1 and self.currency2:
-            converted = int(self.value2) * self.currency1/self.currency2
+        elif self.value2 and self.currency1 and self.currency2 and not executed:
+            self.currency1Text.delete("1.0", tk.END)
+            converted = float(self.value2) * float(api.data["data"][self.currency1]["value"])/float(api.data["data"][self.currency2]["value"])
             self.currency1Text.insert(tk.END, str(converted))
 
 
 
-GUI()
+GUI()        
+
